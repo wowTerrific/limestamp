@@ -11,7 +11,7 @@ pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 /// decimals. For example, if you are in NPT or Nepal Time,
 /// your offset converts from +5:45 to 5.75. Values above 14
 /// below -14 will throw an Error.
-pub fn limestamp(_offset: f32) -> Result<String> {
+pub fn limestamp(_offset: &str)-> Result<String> {
     
     // let offset_in_seconds = parse::parse_offset(offset)?;
 
@@ -85,7 +85,7 @@ mod tests {
 
     #[test]
     fn limestamp_bad_offset_error() {
-        let lime_result = limestamp(13.75);
+        let lime_result = limestamp("+5:45");
 
         println!("{lime_result:?}");
 
