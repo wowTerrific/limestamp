@@ -12,13 +12,8 @@ use super::Result;
 use super::error;
 use super::common_times::SECONDS_IN_HOUR;
 
-pub fn parse_offset(offset_str: &str) -> Result<i64> {
-    // Offset should be 5 or 6 characters long, contain
-    // either '+' or '-' as first character
-    // one or two digits after (less than 14)
-    // ':' next
-    // two more digits as: 00, 15, 30, or 45
 
+pub fn parse_offset(offset_str: &str) -> Result<i64> {
     let offset = String::from(offset_str);
 
     let return_error = error::BadOffset {
@@ -41,38 +36,70 @@ pub fn parse_offset(offset_str: &str) -> Result<i64> {
 
     match offset.len() {
         5 => {
-            if let Some(hr_char) = offset.chars().nth(1) {
-                if let Some(digit) = hr_char.to_digit(10) {
-                    hours = digit as u64 * common_times::SECONDS_IN_HOUR;
-                } else {
-                    return Err(Box::new(return_error));
-                }
-            } else {
-                return Err(Box::new(return_error));
-            }
-
-            if let Ok(digit) = (&offset[3..]).parse::<u64>() {
-                match digit {
-                    00 => minutes = 0,
-                    15 => minutes = 15 * 60,
-                    30 => minutes = 30 * 60,
-                    45 => minutes = 45 * 60,
-                    _ => return Err(Box::new(return_error))
-                }
-            } else {
-                return Err(Box::new(return_error))
-            }
-
-        
+            hours = parse_hour_digits(&offset, 1)?;
+            minutes = parse_min_digits(&offset, 3)?;
         },
         6 => {
-            unimplemented!()
+            hours = parse_hour_digits(&offset, 2)?;
+            minutes = parse_min_digits(&offset, 4)?;
         }
         _ => return Err(Box::new(return_error))
     };
 
     let final_offset = sign * (hours + minutes) as i64;
     Ok(final_offset)
+}
+
+
+fn parse_hour_digits(offset_str: &String, length: usize) -> Result<u64> {
+    let return_error = error::BadOffset {
+        message: String::from("UTC Offset must be formatted as \"+00:00\", \"-00:00\", \"+0:00\", or \"-0:00\""),
+    };
+
+    match length {
+        1 => {
+            if let Some(hr_char) = offset_str.chars().nth(1) {
+                if let Some(digit) = hr_char.to_digit(10) {
+                    return Ok(digit as u64 * common_times::SECONDS_IN_HOUR);
+                } else {
+                    return Err(Box::new(return_error));
+                }
+            } else {
+                return Err(Box::new(return_error));
+            }
+        },
+        2 => {
+            if let Ok(hrs_digits) = &offset_str[1..3].parse::<u64>() {
+                if hrs_digits > &14 {
+                    return Err(Box::new(return_error));
+                }
+                Ok(*hrs_digits * common_times::SECONDS_IN_HOUR)
+            } else {
+                return Err(Box::new(return_error));
+            }
+        },
+        _ => return Err(Box::new(return_error))
+    }
+}
+
+
+
+fn parse_min_digits(offset_str: &String, start_index: usize) -> Result<u64> {
+    let return_error = error::BadOffset {
+        message: String::from("UTC Offset must be formatted as \"+00:00\", \"-00:00\", \"+0:00\", or \"-0:00\""),
+    };
+
+    if let Ok(digits) = &offset_str[start_index..].parse::<u64>() {
+        match digits {
+            00 => return Ok(0),
+            15 => return Ok(15 * 60),
+            30 => return Ok(30 * 60),
+            45 => return Ok(45 * 60),
+            _ => return Err(Box::new(return_error))
+        }
+    } else {
+        return Err(Box::new(return_error));
+    }
 }
 
 #[cfg(test)]
