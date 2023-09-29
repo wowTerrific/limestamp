@@ -4,15 +4,13 @@
 //! be tricky and will require more robust
 //! data structures.
 
-use std::string::ParseError;
-
 use crate::common_times;
 
 use super::Result;
 use super::error;
-use super::common_times::SECONDS_IN_HOUR;
 
-
+/// transforms the `offset` used as an argument to `limestamp()` to 
+/// seconds, either positive or negative according to the `&str`
 pub fn parse_offset(offset_str: &str) -> Result<i64> {
     let offset = String::from(offset_str);
 

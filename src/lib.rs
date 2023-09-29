@@ -1,5 +1,7 @@
 use std::time::SystemTime;
 
+use parse::parse_offset;
+
 pub mod error;
 mod parse;
 pub mod common_times;
@@ -11,9 +13,9 @@ pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 /// decimals. For example, if you are in NPT or Nepal Time,
 /// your offset converts from +5:45 to 5.75. Values above 14
 /// below -14 will throw an Error.
-pub fn limestamp(_offset: &str)-> Result<String> {
+pub fn limestamp(offset: &str)-> Result<String> {
     
-    // let offset_in_seconds = parse::parse_offset(offset)?;
+    let offset_in_seconds = parse::parse_offset(offset)?;
 
     let date_in_sec = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)?
