@@ -11,4 +11,8 @@ First version will not account for Daylight Savings Time... This will be impleme
     - unit tests for helper functions
     - idomatic way to set the return message for all functions
 - Start work on `limestamp()`
-- Daylight Savings Time - may need to remove offset and do standard UTC all the way through to start...
+- Create Options struct for `limestamp` to take as an argument
+    - implement a builder
+    - reference an Enum/table of all the timezones so that a user only needs to input that instead of a custom Offset number
+    - The timezone table will also hold information regarding daylight savings time for those zones
+        - I don't know how to maintain this if things change other than referencing a website on occasion

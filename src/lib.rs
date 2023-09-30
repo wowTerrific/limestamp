@@ -13,6 +13,9 @@ pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 /// decimals. For example, if you are in NPT or Nepal Time,
 /// your offset converts from +5:45 to 5.75. Values above 14
 /// below -14 will throw an Error.
+/// 
+/// The Timestamp will also be set up as MM/DD/YYYY. Sorry about
+/// your luck, anyone outside of the US...
 pub fn limestamp(offset: &str)-> Result<String> {
     
     let offset_in_seconds = parse::parse_offset(offset)?;
@@ -21,12 +24,37 @@ pub fn limestamp(offset: &str)-> Result<String> {
         .duration_since(SystemTime::UNIX_EPOCH)?
         .as_secs();
 
-    // TODO:
-    // Continue transforming seconds to correct date
-    // assume all time will be recorded as UTC for now...
+    let adjusted_date_in_sec = if offset_in_seconds > 0 {
+        date_in_sec + offset_in_seconds as u64
+    } else {
+        date_in_sec - (offset_in_seconds.abs() as u64)
+    };
 
-    
-    Ok("".to_string())
+
+    // TODO:
+    // cycles - help to calculate leap years!
+    // num days - helps to calculate everything else... 
+
+    let num_days = adjusted_date_in_sec / common_times::SECONDS_IN_DAY;
+
+
+
+    // Year
+    let year = 0;
+    // Month
+    let month = 0;
+    // Day
+    let day = 0;
+
+
+
+    let hour = ( adjusted_date_in_sec % (60 * 60 * 24) ) / ( 60 * 60 );
+    let minute = ( adjusted_date_in_sec % (60 * 60) ) / 60;
+    let second = adjusted_date_in_sec % 60;
+
+    let date_as_str = format!("{}/{}/{} - {}:{}:{}", month, day, year, hour, minute, second);
+
+    Ok(date_as_str)
 }
 
 
@@ -82,7 +110,7 @@ mod tests {
 
     #[test]
     fn test_limestamp_string() {
-        unimplemented!();
+        println!("{:?}", limestamp("-05:00"))
     }
 
     #[test]
