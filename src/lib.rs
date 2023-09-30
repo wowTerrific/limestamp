@@ -36,12 +36,16 @@ pub fn limestamp(offset: &str)-> Result<String> {
     // num days - helps to calculate everything else... 
 
     let num_days = adjusted_date_in_sec / common_times::SECONDS_IN_DAY;
+    let cycles = (num_days - (365 + 366)) / common_times::CYCLE_IN_DAYS;
+    let remainder_years_after_cycle = (num_days - (365+366)) % common_times::CYCLE_IN_DAYS / 365;
 
+    // Year - 1972 because 1970 is in the middle of a "cycle"
+    let year = (cycles * 4) + remainder_years_after_cycle + 1972;
 
-
-    // Year
-    let year = 0;
     // Month
+    // TODO!
+    let remainder_days_after_cycle = 0;
+
     let month = 0;
     // Day
     let day = 0;
